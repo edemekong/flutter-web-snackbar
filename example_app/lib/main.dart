@@ -26,10 +26,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.red,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           FlutterWebSnackbar(
-            title: "Hey Ninja",
+            title: "Hey Fairy",
             titleText: Text('Text Copied'),
             messageText: Text('Copied to clipboard'),
             backgroundColor: Colors.white,
