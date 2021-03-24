@@ -9,11 +9,10 @@ import 'package:flutter/scheduler.dart';
 import 'flutter_web_snackbar_route.dart' as route;
 
 // const String FLUSHBAR_ROUTE_NAME = "/.";
-
 typedef void FlushbarStatusCallback(FlutterWebSnackStatus status);
 typedef void OnTap(FlutterWebSnackbar snackbar);
 
-/// A highly customizable widget so you can notify your user when you fell like he needs a beautiful explanation.
+/// A highly customizable widget so you can notify your user when you feel like he needs a beautiful explanation.
 class FlutterWebSnackbar<T> extends StatefulWidget {
   FlutterWebSnackbar(
       {Key key,
@@ -45,6 +44,7 @@ class FlutterWebSnackbar<T> extends StatefulWidget {
       Animation<Color> progressIndicatorValueColor,
       FlutterWebSnackPosition snackbarPosition =
           FlutterWebSnackPosition.BottomRight,
+      SnackbarAnimations snackbarAnimations = SnackbarAnimations.SlideInOut,
       double positionOffset = 0.0,
       FlutterWebSnackStyle snackbarStyle = FlutterWebSnackStyle.FLOATING,
       Curve forwardAnimationCurve = Curves.easeOutCirc,
@@ -83,6 +83,7 @@ class FlutterWebSnackbar<T> extends StatefulWidget {
             progressIndicatorBackgroundColor,
         this.progressIndicatorValueColor = progressIndicatorValueColor,
         this.snackbarPosition = snackbarPosition,
+        this.snackbarAnimations = snackbarAnimations,
         this.positionOffset = positionOffset,
         this.snackbarStyle = snackbarStyle,
         this.forwardAnimationCurve = forwardAnimationCurve,
@@ -186,6 +187,8 @@ class FlutterWebSnackbar<T> extends StatefulWidget {
   /// Flushbar can be based on [FlushbarPosition.TOP] or on [FlushbarPosition.BOTTOM] of your screen.
   /// [FlushbarPosition.BOTTOM] is the default.
   final FlutterWebSnackPosition snackbarPosition;
+
+  final SnackbarAnimations snackbarAnimations;
 
   final double positionOffset;
 
@@ -293,8 +296,6 @@ class _FlutterWebSnackbar<K extends Object> extends State<FlutterWebSnackbar>
   Animation<double> _fadeAnimation;
   bool _isTitlePresent;
   double _messageTopMargin;
-  FocusScopeNode _focusNode;
-  FocusAttachment _focusAttachment;
   Completer<Size> _boxHeightCompleter;
   Function _progressListener;
   CurvedAnimation _progressAnimation;
@@ -322,9 +323,6 @@ class _FlutterWebSnackbar<K extends Object> extends State<FlutterWebSnackbar>
       _configurePulseAnimation();
       _fadeController?.forward();
     }
-
-    _focusNode = FocusScopeNode();
-    _focusAttachment = _focusNode.attach(context);
   }
 
   @override
@@ -332,9 +330,6 @@ class _FlutterWebSnackbar<K extends Object> extends State<FlutterWebSnackbar>
     _fadeController?.dispose();
     widget.progressIndicatorController?.removeListener(_progressListener);
     widget.progressIndicatorController?.dispose();
-
-    _focusAttachment.detach();
-    _focusNode.dispose();
     super.dispose();
   }
 
@@ -411,12 +406,7 @@ class _FlutterWebSnackbar<K extends Object> extends State<FlutterWebSnackbar>
 
   Widget _getFlushbar() {
     Widget snackbar;
-
-    if (widget.userInputForm != null) {
-      snackbar = _generateInputFlushbar();
-    } else {
-      snackbar = _generateFlushbar();
-    }
+    snackbar = _generateFlushbar();
 
     return Stack(
       children: [
@@ -446,33 +436,6 @@ class _FlutterWebSnackbar<K extends Object> extends State<FlutterWebSnackbar>
         ),
         snackbar,
       ],
-    );
-  }
-
-  Widget _generateInputFlushbar() {
-    return Container(
-      key: _backgroundBoxKey,
-      constraints: widget.maxWidth != null
-          ? BoxConstraints(maxWidth: widget.maxWidth)
-          : null,
-      decoration: BoxDecoration(
-        color: widget.backgroundColor,
-        gradient: widget.backgroundGradient,
-        boxShadow: widget.boxShadows,
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        border: widget.borderColor != null
-            ? Border.all(color: widget.borderColor, width: widget.borderWidth)
-            : null,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(
-            left: 8.0, right: 8.0, bottom: 8.0, top: 16.0),
-        child: FocusScope(
-          child: widget.userInputForm,
-          node: _focusNode,
-          autofocus: true,
-        ),
-      ),
     );
   }
 
@@ -750,8 +713,17 @@ class _FlutterWebSnackbar<K extends Object> extends State<FlutterWebSnackbar>
   }
 }
 
-//TODO Here is the magic of the animation comes into
-/// Indicates if snackbar is going to start at the [Center] or at the [TopCenter]
+/// Indicates if snackbar is going to start at the
+/// [Center]
+/// [TopCenter]
+/// [BottomCenter]
+/// [TopLeft]
+/// [TopRight]
+/// [TopCenter]
+/// [BottomLeft]
+/// [BottomRight]
+/// of the screen
+///
 enum FlutterWebSnackPosition {
   Center,
   TopCenter,
@@ -761,6 +733,10 @@ enum FlutterWebSnackPosition {
   BottomLeft,
   BottomRight,
 }
+
+/// Snackbar animations
+
+enum SnackbarAnimations { SlideInOut, SlideInFadeOut, FadeInSlideOut }
 
 /// Indicates if snackbar will be attached to the edge of the screen or not
 enum FlutterWebSnackStyle { FLOATING, GROUNDED }

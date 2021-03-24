@@ -40,40 +40,60 @@ class FlutterWebSnackbarRoute<T> extends OverlayRoute<T> {
   void _configureAlignment(FlutterWebSnackPosition snackbarPosition) {
     switch (snackbar.snackbarPosition) {
       case FlutterWebSnackPosition.TopRight:
-        {
-          _initiallOffset = Offset(0.55, -0.4);
-          _endOffset = Offset(0.30, -0.4);
-          break;
-        }
-      case FlutterWebSnackPosition.BottomRight:
-        {
-          _initiallOffset = Offset(0.55, 0.4);
-          _endOffset = Offset(0.30, 0.4);
-          break;
-        }
-      case FlutterWebSnackPosition.Center:
-        // TODO: Handle this case.
-        break;
-      case FlutterWebSnackPosition.TopCenter:
-        // TODO: Handle this case.
-        break;
-      case FlutterWebSnackPosition.BottomCenter:
-        // TODO: Handle this case.
+        _configureAnimations(
+          startOffSet: Offset(0.55, -0.4),
+          endOffset: Offset(0.30, -0.4),
+        );
         break;
       case FlutterWebSnackPosition.TopLeft:
-        // TODO: Handle this case.
+        _configureAnimations(
+          startOffSet: Offset(-0.55, -0.4),
+          endOffset: Offset(-0.30, -0.4),
+        );
+        break;
+      case FlutterWebSnackPosition.BottomRight:
+        _configureAnimations(
+          startOffSet: Offset(0.55, 0.4),
+          endOffset: Offset(0.30, 0.4),
+        );
         break;
       case FlutterWebSnackPosition.BottomLeft:
-        // TODO: Handle this case.
+        _configureAnimations(
+          startOffSet: Offset(-0.55, 0.4),
+          endOffset: Offset(-0.30, 0.4),
+        );
+        break;
+      case FlutterWebSnackPosition.Center:
+        _configureAnimations(
+          startOffSet: Offset(0.30, 0.0),
+          endOffset: Offset(0.0, 0.0),
+        );
+        break;
+      case FlutterWebSnackPosition.TopCenter:
+        _configureAnimations(
+          startOffSet: Offset(-0.0, -0.45),
+          endOffset: Offset(0.0, -0.4),
+        );
+        break;
+      case FlutterWebSnackPosition.BottomCenter:
+        _configureAnimations(
+          startOffSet: Offset(-0.0, 0.45),
+          endOffset: Offset(0.0, 0.4),
+        );
         break;
     }
+  }
+
+  void _configureAnimations({Offset startOffSet, Offset endOffset}) {
+    _initiallOffset = startOffSet;
+    _endOffset = endOffset;
   }
 
   Future<T> get completed => _transitionCompleter.future;
   bool get opaque => false;
 
   @override
-  Iterable<OverlayEntry> createOverlayEntries() {
+  List<OverlayEntry> createOverlayEntries() {
     final List<OverlayEntry> overlays = [];
 
     if (snackbar.blockBackgroundInteraction) {
@@ -194,11 +214,11 @@ class FlutterWebSnackbarRoute<T> extends OverlayRoute<T> {
         _cancelTimer();
         _wasDismissedBySwipe = true;
 
-        // if (isCurrent) {
-        //   navigator.pop();
-        // } else {
-        //   navigator.removeRoute(this);
-        // }
+        if (isCurrent) {
+          navigator.pop();
+        } else {
+          navigator.removeRoute(this);
+        }
       },
       child: _getFlushbar(),
     );
